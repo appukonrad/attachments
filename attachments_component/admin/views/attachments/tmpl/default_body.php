@@ -135,9 +135,7 @@ for ($i=0, $n=count( $this->items ); $i < $n; $i++)
 				}
 			   ?></a>&nbsp;&nbsp;<a class="downloadAttach" href="<?php echo $url; ?>" target="_blank"
 		 title="<?php echo $access_attachment_title; ?>"><?php echo $download_verb;
-		  ?></a><a class="downloadAttach" href="<?php echo $url; ?>"  target="_blank"
-		 title="<?php echo $access_attachment_title; ?>"
-		  ><?php echo JHtml::image('com_attachments/download.gif', $download_verb, null, true); ?></a>
+		  ?><?php echo JHtml::image('com_attachments/download.gif', $download_verb, null, true); ?></a>
 	  </td>
 	  <td class="at_description"><?php echo htmlspecialchars(stripslashes($item->description)); ?></td>
 	  <td class="at_access" align="center"><?php echo $access; ?></td>
