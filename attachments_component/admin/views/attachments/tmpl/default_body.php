@@ -94,8 +94,7 @@ for ($i=0, $n=count( $this->items ); $i < $n; $i++)
 			$artLine .= JFilterOutput::ampReplace('&nbsp;&nbsp;&nbsp;&nbsp;');
 			$artLine .= "<a class=\"addAttach\" href=\"$addAttachLink\" title=\"$add_attachment_title\">";
 			$artLine .= JHtml::image('com_attachments/add_attachment.gif', $add_attachment_txt, null, true);
-			$artLine .= "</a>&nbsp;<a class=\"addAttach\" href=\"$addAttachLink\" title=\"$add_attachment_title\">" .
-				"$add_attachment_txt</a>";
+			$artLine .= "&nbsp;$add_attachment_txt</a>";
 			$artLine .= "</td></tr>";
 			}
 		echo $artLine;
