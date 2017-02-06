@@ -5,7 +5,7 @@
  * @package Attachments
  * @subpackage Attachments_Component
  *
- * @copyright Copyright (C) 2007-2015 Jonathan M. Cameron, All Rights Reserved
+ * @copyright Copyright (C) 2007-2016 Jonathan M. Cameron, All Rights Reserved
  * @license http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
@@ -204,7 +204,7 @@ class AttachmentsViewAttachments extends JViewLegacy
 
 		// Construct the path for the icons
 		$uri = JFactory::getURI();
-		$base_url = $uri->root(true) . '/';
+		$base_url = $uri->root(false);
 		$this->base_url = $base_url;
 		$this->icon_url_base = $base_url . 'components/com_attachments/media/icons/';
 

@@ -5,7 +5,7 @@
  * @package Attachments
  * @subpackage Attachments_Component
  *
- * @copyright Copyright (C) 2007-2015 Jonathan M. Cameron, All Rights Reserved
+ * @copyright Copyright (C) 2007-2016 Jonathan M. Cameron, All Rights Reserved
  * @license http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
@@ -28,7 +28,7 @@ $lists = $this->lists;
 	<button class="filter_button" onclick="this.form.submit();"><?php echo JText::_( 'JSEARCH_FILTER_SUBMIT' ); ?></button>
 	<button class="filter_button" onclick="document.id('filter_search').value='';this.form.submit();">
 	   <?php echo JText::_( 'JSEARCH_FILTER_CLEAR' ); ?></button>
-	<button class="filter_button" id="reset_order" onclick="javascript:tableOrdering('','asc','');">
+	<button class="filter_button" id="reset_order" onclick="Joomla.tableOrdering('','asc','');">
 	   <?php echo JText::_( 'ATTACH_RESET_ORDER' ); ?></button>
 	</td>
 	<td nowrap="nowrap">

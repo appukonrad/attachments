@@ -6,7 +6,7 @@
  * @subpackage Attachments_Component
  *
  * @author Jonathan M. Cameron
- * @copyright Copyright (C) 2007-2015 Jonathan M. Cameron
+ * @copyright Copyright (C) 2007-2016 Jonathan M. Cameron
  * @license http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL
  * @link http://joomlacode.org/gf/project/attachments/frs/
  */
@@ -51,6 +51,7 @@ class com_AttachmentsInstallerScript
 	 */
 	protected $dbKnown = array('mysql' => 'MySQL',
 							   'mysqli' => 'MySQLi',
+							   'pdomysql' => 'PDO MySql',
 							   'postgresql' => 'PostgreSQL',
 							   'sqlsrv' => 'MS SQL Server',
 							   'sqlazure' => 'MS SQL Azure');
@@ -60,7 +61,7 @@ class com_AttachmentsInstallerScript
 	 *
 	 * @var	   array
 	 */
-	protected $dbSupported = array('mysql', 'mysqli');
+	protected $dbSupported = array('mysql', 'mysqli', 'pdomysql');
 
 
 	/**

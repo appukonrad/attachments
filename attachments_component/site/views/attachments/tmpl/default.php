@@ -5,7 +5,7 @@
  * @package Attachments
  * @subpackage Attachments_Component
  *
- * @copyright Copyright (C) 2007-2015 Jonathan M. Cameron, All Rights Reserved
+ * @copyright Copyright (C) 2007-2016 Jonathan M. Cameron, All Rights Reserved
  * @license http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
@@ -165,7 +165,7 @@ for ($i=0, $n=count($attachments); $i < $n; $i++) {
 		if ( $attachment->uri_type == 'file' ) {
 			// Handle file attachments
 			if ( $this->secure ) {
-				$url = JRoute::_("index.php?option=com_attachments&task=download&id=" . (int)$attachment->id);
+				$url = JRoute::_($base_url . "index.php?option=com_attachments&task=download&id=" . (int)$attachment->id);
 				}
 			else {
 				$url = $base_url . $attachment->url;
@@ -178,7 +178,7 @@ for ($i=0, $n=count($attachments); $i < $n; $i++) {
 		else {
 			// Handle URL "attachments"
 			if ( $this->secure ) {
-				$url = JRoute::_("index.php?option=com_attachments&task=download&id=" . (int)$attachment->id);
+				$url = JRoute::_($base_url . "index.php?option=com_attachments&task=download&id=" . (int)$attachment->id);
 				$tooltip = JText::sprintf('ATTACH_ACCESS_THIS_URL_S', $filename);
 				}
 			else {
@@ -189,7 +189,7 @@ for ($i=0, $n=count($attachments); $i < $n; $i++) {
 					if ( in_array($attachment->access, $guest_levels) ) {
 						$app = JFactory::getApplication();
 						$return = $app->getUserState('com_attachments.current_url', '');
-						$url = JRoute::_('index.php?option=com_attachments&task=requestLogin' . $return);
+						$url = JRoute::_($base_url . 'index.php?option=com_attachments&task=requestLogin' . $return);
 						$target = '';
 						}
 					}
@@ -298,24 +298,25 @@ for ($i=0, $n=count($attachments); $i < $n; $i++) {
 	$update_link = '';
 	$delete_link = '';
 
-	// Add the link to delete the parent, if requested
+	// Add the link to edit the attachment, if requested
 	if ( $this->some_attachments_modifiable && $attachment->user_may_edit && $this->allow_edit ) {
 
 		// Create the edit link
 		$update_url = str_replace('%d', (string)$attachment->id, $this->update_url);
 		$tooltip = JText::_('ATTACH_UPDATE_THIS_FILE') . ' (' . $actual_filename . ')';
-		$update_link = '<a class="modal-button" type="button" href="' . $update_url . '"';
+		$update_link = '<a class="modal-button modal" type="button" href="' . $update_url . '"';
 		$update_link .= " rel=\"{handler: 'iframe', size: {x: 920, y: 600}}\" title=\"$tooltip\">";
 		$update_link .= JHtml::image('com_attachments/pencil.gif', $tooltip, null, true);
 		$update_link .= "</a>";
 		}
 
+	// Add the link to delete the attachment, if requested
 	if ( $this->some_attachments_modifiable && $attachment->user_may_delete && $this->allow_edit ) {
 
 		// Create the delete link
 		$delete_url = str_replace('%d', (string)$attachment->id, $this->delete_url);
 		$tooltip = JText::_('ATTACH_DELETE_THIS_FILE') . ' (' . $actual_filename . ')';
-		$delete_link = '<a class="modal-button" type="button" href="' . $delete_url . '"';
+		$delete_link = '<a class="modal-button modal" type="button" href="' . $delete_url . '"';
 		$delete_link .= " rel=\"{handler: 'iframe', size: {x: 600, y: 400}, iframeOptions: {scrolling: 'no'}}\" title=\"$tooltip\">";
 		$delete_link .= JHtml::image('com_attachments/delete.gif', $tooltip, null, true);
 		$delete_link .= "</a>";

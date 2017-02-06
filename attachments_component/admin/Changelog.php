@@ -5,7 +5,7 @@
  * @package Attachments
  * @subpackage Attachments_Component
  *
- * @copyright Copyright (C) 2007-2015 Jonathan M. Cameron, All Rights Reserved
+ * @copyright Copyright (C) 2007-2016 Jonathan M. Cameron, All Rights Reserved
  * @license http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
@@ -15,6 +15,14 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <pre>
 Attachments 3.x Extension for Joomla 2.5+ and 3.x
+
+2016-05-07: Release 3.2.4
+    - 2015-09-05 Fixed admin [Reset Order] button
+    - 2015-10-11 Fixed issue with uploads in Joomla 3.4.4
+    - 2016-04-15 Fixed showing attachments in TinyMCE editor
+    - 2016-04-20 Fixed modal issue with TinyMCE on J3.5.1 on backend
+    - 2016-04-24 Fixed modal issue with TinyMCE on J3.5.1 on frontend
+    - Tested on Joomla 3.4.8 and 3.5.1
 
 2015-03-20: Release 3.2.3
     - Fixed issue with category blog lists for Joomla 3.4

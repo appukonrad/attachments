@@ -6,7 +6,7 @@
  * @subpackage	Attachments_Component
  *
  * @author		Jonathan M. Cameron <jmcameron@jmcameron.net>
- * @copyright	Copyright (C) 2011-2015 Jonathan M. Cameron, All Rights Reserved
+ * @copyright	Copyright (C) 2011-2016 Jonathan M. Cameron, All Rights Reserved
  * @license		http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL
  * @link		http://joomlacode.org/gf/project/attachments/frs/
  */
@@ -25,11 +25,11 @@ class AttachmentsDefines
 {
 	/** The Attachments extension version number
 	 */
-	public static $ATTACHMENTS_VERSION = '3.2.4-Beta2';
+	public static $ATTACHMENTS_VERSION = '3.2.4';
 
 	/** The Attachments extension version date
 	 */
-	public static $ATTACHMENTS_VERSION_DATE = 'May  7, 2015';
+	public static $ATTACHMENTS_VERSION_DATE = 'May  7, 2016';
 
 	/** Project URL
 	 */
