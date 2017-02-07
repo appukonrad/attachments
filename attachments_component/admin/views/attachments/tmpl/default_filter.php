@@ -10,31 +10,39 @@
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
  */
-
 // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
 $lists = $this->lists;
-
 ?>
-  <div class="attachments_filter">
-	<table>
-	<tbody>
-	<tr>
-	<td width="100%">
-	<label class="filter-search-lbl" for="filter_search"><?php echo JText::_( 'JSEARCH_FILTER_LABEL' ); ?></label>
+<div class="js-stools clearfix">
+    <div class="clearfix">
+        <div class="js-stools-container-bar">
+            <label for="filter_search" class="element-invisible" aria-invalid="false"><?php echo JText::_('JSEARCH_FILTER_LABEL'); ?></label>
+            <div class="btn-wrapper input-append">
 	<input type="text" name="filter_search" id="filter_search" value="<?php echo $this->escape($this->state->get('filter.search')); ?>"
-	   class="text_area" onchange="this.form.submit();" />
-	<button class="filter_button" onclick="this.form.submit();"><?php echo JText::_( 'JSEARCH_FILTER_SUBMIT' ); ?></button>
-	<button class="filter_button" onclick="document.id('filter_search').value='';this.form.submit();">
-	   <?php echo JText::_( 'JSEARCH_FILTER_CLEAR' ); ?></button>
-	<button class="filter_button" id="reset_order" onclick="Joomla.tableOrdering('','asc','');">
-	   <?php echo JText::_( 'ATTACH_RESET_ORDER' ); ?></button>
-	</td>
-	<td nowrap="nowrap">
+                       onchange="this.form.submit();" />    
+                <button class="btn" onclick="this.form.submit();"><span class="icon-search"></span><?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?></button>
+            </div>
+            <div class="btn-wrapper">
+                <button class="btn" onclick="document.id('filter_search').value = '';this.form.submit();">
+                    <?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?></button>
+            </div>
+            <div class="btn-wrapper">
+                <button class="btn" id="reset_order" onclick="Joomla.tableOrdering('', 'asc', '');">
+                    <?php echo JText::_('ATTACH_RESET_ORDER'); ?></button>
+            </div>
+        </div>
+        <div class="js-stools-container-list hidden-phone hidden-tablet shown" style="">
+            <div class="ordering-select hidden-phone">
 	<?php echo JText::_('ATTACH_LIST_ATTACHMENTS_FOR_COLON') ?>
-	<?php echo $lists['filter_parent_state_menu'] ?> &nbsp; <?php echo $lists['filter_entity_menu'] ?>
-	</tr>
-	</tbody>
-	</table>
+                <div class="js-stools-field-list">
+                    <?php echo $lists['filter_parent_state_menu'] ?>
   </div>
+                <div class="js-stools-field-list">
+                    <?php echo $lists['filter_entity_menu'] ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

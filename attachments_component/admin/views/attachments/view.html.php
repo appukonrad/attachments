@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Attachments component
  *
@@ -10,13 +11,11 @@
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
  */
-
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die();
 
 /** Define the legacy classes, if necessary */
-require_once(JPATH_SITE.'/components/com_attachments/legacy/view.php');
-
+require_once(JPATH_SITE . '/components/com_attachments/legacy/view.php');
 
 /**
  * View for the special controller
@@ -24,8 +23,8 @@ require_once(JPATH_SITE.'/components/com_attachments/legacy/view.php');
  *
  * @package Attachments
  */
-class AttachmentsViewAttachments extends JViewLegacy
-{
+class AttachmentsViewAttachments extends JViewLegacy {
+
 	protected $items;
 	protected $pagination;
 	protected $state;
@@ -33,10 +32,9 @@ class AttachmentsViewAttachments extends JViewLegacy
 	/**
 	 * Display the list view
 	 */
-	public function display($tpl = null)
-	{
+    public function display($tpl = null) {
 		// Fail gracefully if the Attachments plugin framework plugin is disabled
-		if ( !JPluginHelper::isEnabled('attachments', 'attachments_plugin_framework') ) {
+        if (!JPluginHelper::isEnabled('attachments', 'attachments_plugin_framework')) {
 			echo '<h1>' . JText::_('ATTACH_WARNING_ATTACHMENTS_PLUGIN_FRAMEWORK_DISABLED') . '</h1>';
 			return;
 			}
@@ -62,7 +60,7 @@ class AttachmentsViewAttachments extends JViewLegacy
 		$query->select('*')->from('#__viewlevels');
 		$db->setQuery($query);
 		$levels = $db->loadObjectList();
-		if ( $db->getErrorNum() ) {
+        if ($db->getErrorNum()) {
 			$errmsg = $db->stderr() . ' (ERR 176)';
 			JError::raiseError(500, $errmsg);
 			}
@@ -79,35 +77,31 @@ class AttachmentsViewAttachments extends JViewLegacy
 		// Determine types of parents for which attachments should be displayed
 		$list_for_parents_default = 'ALL';
 		$suppress_obsolete_attachments = $params->get('suppress_obsolete_attachments', false);
-		if ( $suppress_obsolete_attachments ) {
+        if ($suppress_obsolete_attachments) {
 			$list_for_parents_default = 'PUBLISHED';
 			}
 		$app = JFactory::getApplication();
-		$list_for_parents =
-			$app->getUserStateFromRequest('com_attachments.listAttachments.list_for_parents',
-										  'list_for_parents', $list_for_parents_default, 'word');
+        $list_for_parents = $app->getUserStateFromRequest('com_attachments.listAttachments.list_for_parents', 'list_for_parents', $list_for_parents_default, 'word');
 		$lists['list_for_parents'] = JString::strtolower($list_for_parents);
 
 		// Add the drop-down menu to decide which attachments to show
 		$filter_parent_state = $this->state->get('filter.parent_state', 'ALL');
 		$filter_parent_state_options = array();
-		$filter_parent_state_options[] = JHtml::_('select.option', 'ALL', JText::_( 'ATTACH_ALL_PARENTS' ) );
-		$filter_parent_state_options[] = JHtml::_('select.option', 'PUBLISHED', JText::_( 'ATTACH_PUBLISHED_PARENTS' ) );
-		$filter_parent_state_options[] = JHtml::_('select.option', 'UNPUBLISHED', JText::_( 'ATTACH_UNPUBLISHED_PARENTS' ) );
-		$filter_parent_state_options[] = JHtml::_('select.option', 'ARCHIVED', JText::_( 'ATTACH_ARCHIVED_PARENTS' ) );
-		$filter_parent_state_options[] = JHtml::_('select.option', 'TRASHED', JText::_( 'ATTACH_TRASHED_PARENTS' ) );
-		$filter_parent_state_options[] = JHtml::_('select.option', 'NONE', JText::_( 'ATTACH_NO_PARENTS' ) );
+        $filter_parent_state_options[] = JHtml::_('select.option', 'ALL', JText::_('ATTACH_ALL_PARENTS'));
+        $filter_parent_state_options[] = JHtml::_('select.option', 'PUBLISHED', JText::_('ATTACH_PUBLISHED_PARENTS'));
+        $filter_parent_state_options[] = JHtml::_('select.option', 'UNPUBLISHED', JText::_('ATTACH_UNPUBLISHED_PARENTS'));
+        $filter_parent_state_options[] = JHtml::_('select.option', 'ARCHIVED', JText::_('ATTACH_ARCHIVED_PARENTS'));
+        $filter_parent_state_options[] = JHtml::_('select.option', 'TRASHED', JText::_('ATTACH_TRASHED_PARENTS'));
+        $filter_parent_state_options[] = JHtml::_('select.option', 'NONE', JText::_('ATTACH_NO_PARENTS'));
 		$filter_parent_state_tooltip = JText::_('ATTACH_SHOW_FOR_PARENTS_TOOLTIP');
-		$lists['filter_parent_state_menu'] =
-			JHtml::_('select.genericlist', $filter_parent_state_options, 'filter_parent_state',
-					 'class="inputbox" onChange="document.adminForm.submit();" title="' .
+        $lists['filter_parent_state_menu'] = JHtml::_('select.genericlist', $filter_parent_state_options, 'filter_parent_state', 'class="inputbox" onChange="document.adminForm.submit();" title="' .
 					 $filter_parent_state_tooltip . '"', 'value', 'text', $filter_parent_state);
 		$this->filter_parent_state = $filter_parent_state;
 
 		// Add the drop-down menu to filter for types of entities
 		$filter_entity = $this->state->get('filter.entity', 'ALL');
 		$filter_entity_options = array();
-		$filter_entity_options[] = JHtml::_('select.option', 'ALL', JText::_( 'ATTACH_ALL_TYPES' ) );
+        $filter_entity_options[] = JHtml::_('select.option', 'ALL', JText::_('ATTACH_ALL_TYPES'));
 		JPluginHelper::importPlugin('attachments');
 		$apm = getAttachmentsPluginManager();
 		$entity_info = $apm->getInstalledEntityInfo();
@@ -115,40 +109,34 @@ class AttachmentsViewAttachments extends JViewLegacy
 			$filter_entity_options[] = JHtml::_('select.option', $einfo['id'], $einfo['name_plural']);
 			}
 		$filter_entity_tooltip = JText::_('ATTACH_FILTER_ENTITY_TOOLTIP');
-		$lists['filter_entity_menu'] =
-			JHtml::_('select.genericlist', $filter_entity_options, 'filter_entity',
-					 'class="inputbox" onChange="this.form.submit();" ' .
-					 'title="'.$filter_entity_tooltip .'"', 'value', 'text', $filter_entity);
+        $lists['filter_entity_menu'] = JHtml::_('select.genericlist', $filter_entity_options, 'filter_entity', 'class="inputbox" onChange="this.form.submit();" ' .
+                        'title="' . $filter_entity_tooltip . '"', 'value', 'text', $filter_entity);
 
 		$this->lists = $lists;
 
 		// Figure out how many columns
 		$num_columns = 10;
-		if ( $params->get('user_field_1_name') ) {
+        if ($params->get('user_field_1_name')) {
 			$num_columns++;
 			}
-		if ( $params->get('user_field_2_name') ) {
+        if ($params->get('user_field_2_name')) {
 			$num_columns++;
 			}
-		if ( $params->get('user_field_3_name') ) {
+        if ($params->get('user_field_3_name')) {
 			$num_columns++;
 			}
-		if ( $params->get('secure',false) ) {
+        if ($params->get('secure', false)) {
 			$num_columns++;
 			}
 		$this->num_columns = $num_columns;
 
 		// get the version number
-		require_once(JPATH_SITE.'/components/com_attachments/defines.php');
+        require_once(JPATH_SITE . '/components/com_attachments/defines.php');
 		$this->version = AttachmentsDefines::$ATTACHMENTS_VERSION;
 		$this->project_url = AttachmentsDefines::$PROJECT_URL;
 
 		// Add the style sheets
-		JHtml::stylesheet('com_attachments/attachments_admin.css', Array(), true);
-		$lang = JFactory::getLanguage();
-		if ( $lang->isRTL() ) {
-			JHtml::stylesheet('com_attachments/attachments_admin_rtl.css', Array(), true);
-			}
+                JHtml::_('stylesheet', 'jui/jquery.searchtools.css', false, true);
 
 		// Set the toolbar
 		$this->addToolBar();
@@ -157,13 +145,11 @@ class AttachmentsViewAttachments extends JViewLegacy
 		parent::display($tpl);
 	}
 
-
 	/**
 	 * Setting the toolbar
 	 */
-	protected function addToolBar()
-	{
-		require_once(JPATH_COMPONENT_ADMINISTRATOR.'/permissions.php');
+    protected function addToolBar() {
+        require_once(JPATH_COMPONENT_ADMINISTRATOR . '/permissions.php');
 		$canDo = AttachmentsPermissions::getActions();
 
 		$toolbar = JToolBar::getInstance('toolbar');
@@ -174,7 +160,7 @@ class AttachmentsViewAttachments extends JViewLegacy
 			JToolBarHelper::addNew('attachment.add');
 			}
 
-		if ($canDo->get('core.edit') OR $canDo->get('core.edit.own') ) {
+        if ($canDo->get('core.edit') OR $canDo->get('core.edit.own')) {
 			JToolBarHelper::editList('attachment.edit');
 			}
 
@@ -199,9 +185,7 @@ class AttachmentsViewAttachments extends JViewLegacy
 				}
 
 			// Add a button for extra admin commands
-			$toolbar->appendButton('Popup', $icon_name, 'ATTACH_UTILITIES',
-								   'index.php?option=com_attachments&amp;task=adminUtils&amp;tmpl=component',
-								   800, 500);
+            $toolbar->appendButton('Popup', $icon_name, 'ATTACH_UTILITIES', 'index.php?option=com_attachments&amp;task=adminUtils&amp;tmpl=component', 800, 500);
 			}
 
 		JToolBarHelper::divider();
@@ -209,14 +193,11 @@ class AttachmentsViewAttachments extends JViewLegacy
 		// Manually add a help button for the help view
 		$url = 'index.php?option=com_attachments&amp;task=help&amp;tmpl=component';
 		$help = ' ' . JText::_('JTOOLBAR_HELP') . ' ';
-		if (version_compare(JVERSION, '3.0', 'ge'))
-		{
+        if (version_compare(JVERSION, '3.0', 'ge')) {
 			$link = "<button class=\"btn btn-small\" rel=\"help\" href=\"#\" ";
 			$link .= "onclick=\"Joomla.popupWindow('$url', 'Help', 800, 650, 1)\"> ";
 			$link .= "<i class=\"icon-question-sign\"></i>$help</button>";
-		}
-		else
-		{
+        } else {
 			$link = '<a class="toolbar" rel="help" href="#" ';
 			$link .= "onclick=\"Joomla.popupWindow('$url', 'Help', 800, 650, 1)\"> ";
 			$link .= "<span class=\"icon-32-help\"> </span>$help</a>";

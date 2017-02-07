@@ -10,7 +10,6 @@
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
  */
-
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
@@ -21,16 +20,16 @@ $uri = JFactory::getURI();
 // load tooltip behavior
 JHtml::_('behavior.tooltip');
 
-$listOrder	= $this->escape($this->state->get('list.ordering'));
-$listDirn	= $this->escape($this->state->get('list.direction'));
-
+$listOrder = $this->escape($this->state->get('list.ordering'));
+$listDirn = $this->escape($this->state->get('list.direction'));
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_attachments'); ?>" method="post" name="adminForm" id="adminForm">
-<?php echo $this->loadTemplate('filter');?>
-  <table class="adminlist" id="attachmentsList">
-	<thead><?php echo $this->loadTemplate('head');?></thead>
-	<tbody><?php echo $this->loadTemplate('body');?></tbody>
-	<tfoot><?php echo $this->loadTemplate('foot');?></tfoot>
+    <div id="j-main-container">
+<?php echo $this->loadTemplate('filter'); ?>
+        <table class="table table-striped" id="attachmentsList">
+            <thead><?php echo $this->loadTemplate('head'); ?></thead>
+            <tbody><?php echo $this->loadTemplate('body'); ?></tbody>
+            <tfoot><?php echo $this->loadTemplate('foot'); ?></tfoot>
   </table>
   <div>
 	<input type="hidden" name="task" value="" />
@@ -39,5 +38,6 @@ $listDirn	= $this->escape($this->state->get('list.direction'));
 	<input type="hidden" name="filter_order_Dir" value="<?php echo $listDirn; ?>" />
 	<?php echo JHtml::_('form.token'); ?>
   </div>
+    </div>
 </form>
 
