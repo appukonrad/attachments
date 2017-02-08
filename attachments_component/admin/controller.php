@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Attachments component
  *
@@ -10,266 +11,226 @@
  * @link http://joomlacode.org/gf/project/attachments/frs/
  * @author Jonathan M. Cameron
  */
-
 defined('_JEXEC') or die('Restricted access');
 
 /** Define the legacy classes, if necessary */
-require_once(JPATH_SITE.'/components/com_attachments/legacy/controller.php');
-
+require_once(JPATH_SITE . '/components/com_attachments/legacy/controller.php');
 
 /**
  * Define the main attachments controller class
  *
  * @package Attachments
  */
-class AttachmentsController extends JControllerLegacy
-{
+class AttachmentsController extends JControllerLegacy {
 
-	/** List the attachments
-	 *
-	 * @param	bool   $cachable   If true, the view output will be cached
-	 * @param	array  $urlparams  (ignored)
-	 * @return void
-	 */
-	public function display($cachable = false, $urlparams = false)
-	{
-		// Set the default view (if not specified)
-		JRequest::setVar('view', JRequest::getCmd('view', 'Attachments'));
+    /**
+     * The default view.
+     *
+     * @var    string
+     * @since  1.6
+     */
+    protected $default_view = 'attachments';
 
-		// Call parent to display
-		parent::display($cachable);
-	}
+    /** List the attachments
+     *
+     * @param	bool   $cachable   If true, the view output will be cached
+     * @param	array  $urlparams  (ignored)
+     * @return void
+     */
+    public function display($cachable = false, $urlparams = false) {
+        return parent::display();
+    }
 
+    /**
+     * Set up to display the entity selection view
+     *
+     * This allows users to select entities (sections, categories, and other
+     * content items that are supported with Attachments plugins).
+     */
+    public function selectEntity() {
+        // Get the parent type
+        $parent_type = JRequest::getCmd('parent_type');
+        if (!$parent_type) {
+            $errmsg = JText::sprintf('ATTACH_ERROR_INVALID_PARENT_TYPE_S', $parent_type) .
+                    $db->getErrorMsg() . ' (ERR 65)';
+            JError::raiseError(500, $errmsg);
+        }
 
-	/**
-	 * Set up to display the entity selection view
-	 *
-	 * This allows users to select entities (sections, categories, and other
-	 * content items that are supported with Attachments plugins).
-	 */
-	public function selectEntity()
-	{
-		// Get the parent type
-		$parent_type = JRequest::getCmd('parent_type');
-		if ( !$parent_type ) {
-			$errmsg = JText::sprintf('ATTACH_ERROR_INVALID_PARENT_TYPE_S', $parent_type) .
-				$db->getErrorMsg() . ' (ERR 65)';
-			JError::raiseError(500, $errmsg);
-			}
+        // Parse the parent type and entity
+        $parent_entity = JRequest::getCmd('parent_entity', 'default');
+        if (strpos($parent_type, '.')) {
+            $parts = explode('.', $parent_type);
+            $parent_type = $parts[0];
+            $parent_entity = $parts[1];
+        }
 
-		// Parse the parent type and entity
-		$parent_entity = JRequest::getCmd('parent_entity', 'default');
-		if ( strpos($parent_type, '.') ) {
-			$parts = explode('.', $parent_type);
-			$parent_type = $parts[0];
-			$parent_entity = $parts[1];
-			}
+        // Get the content parent object
+        JPluginHelper::importPlugin('attachments');
+        $apm = getAttachmentsPluginManager();
+        $parent = $apm->getAttachmentsPlugin($parent_type);
+        $parent_entity = $parent->getCanonicalEntityId($parent_entity);
+        $parent_entity_name = JText::_('ATTACH_' . $parent_entity);
 
-		// Get the content parent object
-		JPluginHelper::importPlugin('attachments');
-		$apm = getAttachmentsPluginManager();
-		$parent = $apm->getAttachmentsPlugin($parent_type);
-		$parent_entity = $parent->getCanonicalEntityId($parent_entity);
-		$parent_entity_name = JText::_('ATTACH_' . $parent_entity);
+        // Get the URL to repost (for filtering)
+        $post_url = $parent->getSelectEntityURL($parent_entity);
 
-		// Get the URL to repost (for filtering)
-		$post_url = $parent->getSelectEntityURL($parent_entity);
+        // Set up the display lists
+        $lists = Array();
 
-		// Set up the display lists
-		$lists = Array();
+        // table ordering
+        $app = JFactory::getApplication();
+        $filter_order = $app->getUserStateFromRequest('com_attachments.selectEntity.filter_order', 'filter_order', '', 'cmd');
+        $filter_order_Dir = $app->getUserStateFromRequest('com_attachments.selectEntity.filter_order_Dir', 'filter_order_Dir', '', 'word');
+        $lists['order_Dir'] = $filter_order_Dir;
+        $lists['order'] = $filter_order;
 
-		// table ordering
-		$app = JFactory::getApplication();
-		$filter_order =
-			$app->getUserStateFromRequest('com_attachments.selectEntity.filter_order',
-										  'filter_order', '', 'cmd');
-		$filter_order_Dir =
-			$app->getUserStateFromRequest('com_attachments.selectEntity.filter_order_Dir',
-										  'filter_order_Dir','',	'word');
-		$lists['order_Dir'] = $filter_order_Dir;
-		$lists['order']		= $filter_order;
+        // search filter
+        $search_filter = $app->getUserStateFromRequest('com_attachments.selectEntity.search', 'search', '', 'string');
+        $lists['search'] = $search_filter;
 
-		// search filter
-		$search_filter = $app->getUserStateFromRequest('com_attachments.selectEntity.search',
-													   'search', '', 'string' );
-		$lists['search'] = $search_filter;
+        // Get the list of items to display
+        $items = $parent->getEntityItems($parent_entity, $search_filter);
 
-		// Get the list of items to display
-		$items = $parent->getEntityItems($parent_entity, $search_filter);
+        // Set up the view
+        require_once(JPATH_COMPONENT_ADMINISTRATOR . '/views/entity/view.html.php');
+        $view = new AttachmentsViewEntity( );
+        $view->option = JRequest::getCmd('option');
+        $view->from = 'closeme';
+        $view->post_url = $post_url;
+        $view->parent_type = $parent_type;
+        $view->parent_entity = $parent_entity;
+        $view->parent_entity_name = $parent_entity_name;
+        $view->lists = $lists;
+        $view->items = $items;
 
-		// Set up the view
-		require_once(JPATH_COMPONENT_ADMINISTRATOR.'/views/entity/view.html.php');
-		$view = new AttachmentsViewEntity( );
-		$view->option = JRequest::getCmd('option');
-		$view->from = 'closeme';
-		$view->post_url = $post_url;
-		$view->parent_type = $parent_type;
-		$view->parent_entity = $parent_entity;
-		$view->parent_entity_name = $parent_entity_name;
-		$view->lists = $lists;
-		$view->items = $items;
+        $view->display();
+    }
 
-		$view->display();
-	}
+    /**
+     * Display links for the admin Utility functions
+     */
+    public function adminUtils() {
+        // Access check
+        if (!JFactory::getUser()->authorise('core.admin', 'com_attachments')) {
+            return JError::raiseError(404, JText::_('JERROR_ALERTNOAUTHOR') . ' (ERR 66)');
+        }
 
+        // Set up the tooltip behavior
+        $opts = Array('hideDelay' => 0, 'showDelay' => 0);
+        JHtml::_('behavior.tooltip', '.hasTip', $opts);
 
+        // Set up url/link/tooltip for each command
+        $uri = JFactory::getURI();
+        $url_top = $uri->base(true) . "/index.php?option=com_attachments&amp;controller=special";
+        $closeme = '&amp;tmpl=component&amp;close=1';
 
-	/**
-	 * Display links for the admin Utility functions
-	 */
-	public function adminUtils()
-	{
-		// Access check
-		if (!JFactory::getUser()->authorise('core.admin', 'com_attachments')) {
-			return JError::raiseError(404, JText::_('JERROR_ALERTNOAUTHOR') . ' (ERR 66)');
-			}
+        // Set up the array of entries
+        $entries = Array();
 
-		// Set up the tooltip behavior
-		$opts = Array( 'hideDelay' => 0, 'showDelay' => 0 );
-		JHtml::_('behavior.tooltip', '.hasTip', $opts);
+        // Set up the HTML for the 'Disable MySQL uninstallation' command
+        $disable_mysql_uninstall_url = "$url_top&amp;task=utils.disable_sql_uninstall" . $closeme;
+        $disable_mysql_uninstall_tooltip = JText::_('ATTACH_DISABLE_MYSQL_UNINSTALLATION') . '::' . JText::_('ATTACH_DISABLE_MYSQL_UNINSTALLATION_TOOLTIP');
+        $entries[] = JHtml::_('tooltip', $disable_mysql_uninstall_tooltip, null, null, JText::_('ATTACH_DISABLE_MYSQL_UNINSTALLATION'), $disable_mysql_uninstall_url);
 
-		// Set up url/link/tooltip for each command
-		$uri = JFactory::getURI();
-		$url_top = $uri->base(true) . "/index.php?option=com_attachments&amp;controller=special";
-		$closeme = '&amp;tmpl=component&amp;close=1';
+        // Set up the HTML for the 'Reinstall Attachments Permissions' command
+        $reinstall_permissions_url = "$url_top&amp;task=utils.reinstall_permissions" . $closeme;
+        $reinstall_permissions_tooltip = JText::_('ATTACH_REINSTALL_PERMISSIONS') . '::' . JText::_('ATTACH_REINSTALL_PERMISSIONS_TOOLTIP');
+        $entries[] = JHtml::_('tooltip', $reinstall_permissions_tooltip, null, null, JText::_('ATTACH_REINSTALL_PERMISSIONS'), $reinstall_permissions_url);
 
-		// Set up the array of entries
-		$entries = Array();
+        // Set up the HTML for the 'Regenerate attachment system filenames' command
+        $regenerate_system_filenames_url = "$url_top&amp;task=utils.regenerate_system_filenames" . $closeme;
+        $regenerate_system_filenames_tooltip = JText::_('ATTACH_REGENERATE_ATTACHMENT_SYSTEM_FILENAMES') . '::' .
+                JText::_('ATTACH_REGENERATE_ATTACHMENT_SYSTEM_FILENAMES_TOOLTIP');
+        $entries[] = JHtml::_('tooltip', $regenerate_system_filenames_tooltip, null, null, JText::_('ATTACH_REGENERATE_ATTACHMENT_SYSTEM_FILENAMES'), $regenerate_system_filenames_url);
 
-		// Set up the HTML for the 'Disable MySQL uninstallation' command
-		$disable_mysql_uninstall_url =
-			"$url_top&amp;task=utils.disable_sql_uninstall" . $closeme;
-		$disable_mysql_uninstall_tooltip =
-			JText::_('ATTACH_DISABLE_MYSQL_UNINSTALLATION') . '::' . JText::_('ATTACH_DISABLE_MYSQL_UNINSTALLATION_TOOLTIP');
-		$entries[] = JHtml::_('tooltip', $disable_mysql_uninstall_tooltip, null, null,
-							  JText::_('ATTACH_DISABLE_MYSQL_UNINSTALLATION'),
-							  $disable_mysql_uninstall_url );
+        // Set up the HTML for the 'Remove spaces from system filenames' command
+        $unspacify_system_filenames_url = "$url_top&amp;task=utils.remove_spaces_from_system_filenames" . $closeme;
+        $unspacify_system_filenames_tooltip = JText::_('ATTACH_DESPACE_ATTACHMENT_SYSTEM_FILENAMES') . '::' .
+                JText::_('ATTACH_DESPACE_ATTACHMENT_SYSTEM_FILENAMES_TOOLTIP');
+        $entries[] = JHtml::_('tooltip', $unspacify_system_filenames_tooltip, null, null, JText::_('ATTACH_DESPACE_ATTACHMENT_SYSTEM_FILENAMES'), $unspacify_system_filenames_url);
 
-		// Set up the HTML for the 'Reinstall Attachments Permissions' command
-		$reinstall_permissions_url = "$url_top&amp;task=utils.reinstall_permissions" . $closeme;
-		$reinstall_permissions_tooltip = JText::_('ATTACH_REINSTALL_PERMISSIONS') . '::' . JText::_('ATTACH_REINSTALL_PERMISSIONS_TOOLTIP');
-		$entries[] = JHtml::_('tooltip', $reinstall_permissions_tooltip, null, null,
-							  JText::_('ATTACH_REINSTALL_PERMISSIONS'), $reinstall_permissions_url);
+        // Set up the HTML for the 'Update attachment file sizes' command
+        $update_file_sizes_url = "$url_top&amp;task=utils.update_file_sizes" . $closeme;
+        $update_file_sizes_tooltip = JText::_('ATTACH_UPDATE_ATTACHMENT_FILE_SIZES') . '::' .
+                JText::_('ATTACH_UPDATE_ATTACHMENT_FILE_SIZES_TOOLTIP');
+        $entries[] = JHtml::_('tooltip', $update_file_sizes_tooltip, null, null, JText::_('ATTACH_UPDATE_ATTACHMENT_FILE_SIZES'), $update_file_sizes_url);
 
-		// Set up the HTML for the 'Regenerate attachment system filenames' command
-		$regenerate_system_filenames_url =
-			"$url_top&amp;task=utils.regenerate_system_filenames" . $closeme;
-		$regenerate_system_filenames_tooltip =
-			JText::_('ATTACH_REGENERATE_ATTACHMENT_SYSTEM_FILENAMES') . '::' .
-			JText::_('ATTACH_REGENERATE_ATTACHMENT_SYSTEM_FILENAMES_TOOLTIP');
-		$entries[] = JHtml::_('tooltip', $regenerate_system_filenames_tooltip, null, null,
-							  JText::_('ATTACH_REGENERATE_ATTACHMENT_SYSTEM_FILENAMES'),
-							  $regenerate_system_filenames_url);
+        // Set up the HTML for the 'Check Files' command
+        $check_files_url = "$url_top&amp;task=utils.check_files" . $closeme;
+        $check_files_tooltip = JText::_('ATTACH_CHECK_FILES') . '::' . JText::_('ATTACH_CHECK_FILES_TOOLTIP');
+        $entries[] = JHtml::_('tooltip', $check_files_tooltip, null, null, JText::_('ATTACH_CHECK_FILES'), $check_files_url);
 
-		// Set up the HTML for the 'Remove spaces from system filenames' command
-		$unspacify_system_filenames_url =
-			"$url_top&amp;task=utils.remove_spaces_from_system_filenames" . $closeme;
-		$unspacify_system_filenames_tooltip =
-			JText::_('ATTACH_DESPACE_ATTACHMENT_SYSTEM_FILENAMES')	. '::' .
-			JText::_('ATTACH_DESPACE_ATTACHMENT_SYSTEM_FILENAMES_TOOLTIP');
-		$entries[] = JHtml::_('tooltip', $unspacify_system_filenames_tooltip, null, null,
-							  JText::_('ATTACH_DESPACE_ATTACHMENT_SYSTEM_FILENAMES'),
-							  $unspacify_system_filenames_url);
+        // Set up the HTML for the 'Validate URLs' command
+        $validate_urls_url = "$url_top&amp;task=utils.validate_urls" . $closeme;
+        $validate_urls_tooltip = JText::_('ATTACH_VALIDATE_URLS') . '::' . JText::_('ATTACH_VALIDATE_URLS_TOOLTIP');
+        $entries[] = JHtml::_('tooltip', $validate_urls_tooltip, null, null, JText::_('ATTACH_VALIDATE_URLS'), $validate_urls_url);
 
-		// Set up the HTML for the 'Update attachment file sizes' command
-		$update_file_sizes_url =
-			"$url_top&amp;task=utils.update_file_sizes" . $closeme;
-		$update_file_sizes_tooltip =
-			JText::_('ATTACH_UPDATE_ATTACHMENT_FILE_SIZES') . '::' .
-			JText::_('ATTACH_UPDATE_ATTACHMENT_FILE_SIZES_TOOLTIP');
-		$entries[] = JHtml::_('tooltip', $update_file_sizes_tooltip, null, null,
-							  JText::_('ATTACH_UPDATE_ATTACHMENT_FILE_SIZES'),
-							  $update_file_sizes_url);
+        // Test ???
+        // $utils_test_url = "$url_top&amp;task=utils.test" . $closeme;
+        // $utils_test_tooltip = 'Test';
+        // $entries[] = JHtml::_('tooltip', $utils_test_tooltip, null, null, 'TEST', $utils_test_url);
+        // Get the view
+        require_once(JPATH_COMPONENT_ADMINISTRATOR . '/views/utils/view.html.php');
+        $view = new AttachmentsViewUtils();
+        $view->entries = $entries;
 
-		// Set up the HTML for the 'Check Files' command
-		$check_files_url = "$url_top&amp;task=utils.check_files" . $closeme;
-		$check_files_tooltip = JText::_('ATTACH_CHECK_FILES') . '::' . JText::_('ATTACH_CHECK_FILES_TOOLTIP');
-		$entries[] = JHtml::_('tooltip', $check_files_tooltip, null, null,
-							  JText::_('ATTACH_CHECK_FILES'), $check_files_url);
+        $view->display();
+    }
 
-		// Set up the HTML for the 'Validate URLs' command
-		$validate_urls_url = "$url_top&amp;task=utils.validate_urls" . $closeme;
-		$validate_urls_tooltip = JText::_('ATTACH_VALIDATE_URLS') . '::' . JText::_('ATTACH_VALIDATE_URLS_TOOLTIP');
-		$entries[] = JHtml::_('tooltip', $validate_urls_tooltip, null, null,
-							  JText::_('ATTACH_VALIDATE_URLS'), $validate_urls_url);
+    /**
+     * Return the attachments list as HTML (for use by Ajax)
+     */
+    public function attachmentsList() {
+        $parent_id = JRequest::getInt('parent_id', false);
+        $parent_type = JRequest::getWord('parent_type', '');
+        $parent_entity = JRequest::getWord('parent_entity', 'default');
+        $show_links = JRequest::getBool('show_links', true);
+        $allow_edit = JRequest::getBool('allow_edit', true);
+        $from = JRequest::getWord('from', 'closeme');
+        $title = '';
 
-		// Test ???
-		// $utils_test_url = "$url_top&amp;task=utils.test" . $closeme;
-		// $utils_test_tooltip = 'Test';
-		// $entries[] = JHtml::_('tooltip', $utils_test_tooltip, null, null, 'TEST', $utils_test_url);
+        $response = '';
 
-		// Get the view
-		require_once(JPATH_COMPONENT_ADMINISTRATOR.'/views/utils/view.html.php');
-		$view = new AttachmentsViewUtils();
-		$view->entries = $entries;
+        if (($parent_id === false) || ($parent_type == '')) {
+            return '';
+        }
 
-		$view->display();
-	}
+        // Allow remapping of parent ID (eg, for Joomfish)
+        $lang = JRequest::getWord('lang', '');
+        if ($lang and jimport('attachments_remapper.remapper')) {
+            $parent_id = AttachmentsRemapper::remapParentID($parent_id, $parent_type, $parent_entity);
+        }
 
+        require_once(JPATH_ADMINISTRATOR . '/components/com_attachments/controllers/list.php');
+        $controller = new AttachmentsControllerList();
+        $response = $controller->displayString($parent_id, $parent_type, $parent_entity, $title, $show_links, $allow_edit, false, $from);
+        echo $response;
+    }
 
-	/**
-	 * Return the attachments list as HTML (for use by Ajax)
-	 */
-	public function attachmentsList()
-	{
-		$parent_id = JRequest::getInt('parent_id', false);
-		$parent_type = JRequest::getWord('parent_type', '');
-		$parent_entity = JRequest::getWord('parent_entity', 'default');
-		$show_links = JRequest::getBool('show_links', true);
-		$allow_edit = JRequest::getBool('allow_edit', true);
-		$from = JRequest::getWord('from', 'closeme');
-		$title = '';
+    /** Show the help page
+     */
+    public function help() {
+        // Set up the view
+        require_once(JPATH_COMPONENT_ADMINISTRATOR . '/views/help/view.html.php');
+        $view = new AttachmentsViewHelp();
 
-		$response = '';
+        // Load language(s)
+        $view->lang = JFactory::getLanguage();
 
-		if ( ($parent_id === false) || ($parent_type == '') ) {
-			return '';
-			}
+        // Now load the help page file
+        // (Load the component file first since the help pages share some items)
+        if ($view->lang->getTag() != 'en-GB') {
+            // First load English for any untranslated items
+            $view->lang->load('com_attachments', dirname(__FILE__), 'en-GB');
+            $view->lang->load('com_attachments.help', dirname(__FILE__), 'en-GB');
+        }
 
-		// Allow remapping of parent ID (eg, for Joomfish)
-		$lang = JRequest::getWord('lang', '');
-		if ($lang and jimport('attachments_remapper.remapper'))
-		{
-			$parent_id = AttachmentsRemapper::remapParentID($parent_id, $parent_type, $parent_entity);
-		}
+        // Load current language
+        $view->lang->load('com_attachments', dirname(__FILE__), null, true);
+        $view->lang->load('com_attachments.help', dirname(__FILE__), null, true);
 
-		require_once(JPATH_ADMINISTRATOR.'/components/com_attachments/controllers/list.php');
-		$controller = new AttachmentsControllerList();
-		$response = $controller->displayString($parent_id, $parent_type, $parent_entity,
-											   $title, $show_links, $allow_edit, false, $from);
-		echo $response;
-	}
-
-
-
-	/** Show the help page
-	 */
-	public function help()
-	{
-		// Set up the view
-		require_once(JPATH_COMPONENT_ADMINISTRATOR . '/views/help/view.html.php');
-		$view = new AttachmentsViewHelp();
-
-		// Load language(s)
-		$view->lang = JFactory::getLanguage();
-
-		// Now load the help page file
-		// (Load the component file first since the help pages share some items)
-		if ( $view->lang->getTag() != 'en-GB' )
-		{
-			// First load English for any untranslated items
-			$view->lang->load('com_attachments', dirname(__FILE__), 'en-GB');
-			$view->lang->load('com_attachments.help', dirname(__FILE__), 'en-GB');
-		}
-
-		// Load current language
-		$view->lang->load('com_attachments', dirname(__FILE__), null, true);
-		$view->lang->load('com_attachments.help', dirname(__FILE__), null, true);
-
-		// Call parent to display
-		$view->display();
-	}
-
+        // Call parent to display
+        $view->display();
+    }
 
 }
-
