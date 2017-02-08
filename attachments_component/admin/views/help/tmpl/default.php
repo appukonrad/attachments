@@ -80,7 +80,7 @@ $onContentPrepare = "<tt class=\"docutils literal\">'onContentPrepare'</tt>";
 $main_title_tooltip = $this->constructTooltip('ATTACH_HELP_000000_MAIN_TITLE');
 $main_version_tooltip = $this->constructTooltip('ATTACH_HELP_000100_MAIN_VERSION');
 
-$toggle_img = JURI::root(true).'/media/system/images/tooltip.png';
+$toggle_img = JUri::root(true).'/media/system/images/tooltip.png';
 
 ?>
 <div class="help-document">
